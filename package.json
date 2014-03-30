@@ -1,0 +1,23 @@
+{
+  "name": "cocotte-is",
+  "description": "node.js変数チェック用ライブラリ",
+  "homepage": "https://github.com/yukik",
+  "keywords": [
+    "tools"
+  ],
+  "author": "Yuki Kurata <yuki.kurata@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yukik/cocotte-is.git"
+  },
+  "main": "is.js",
+  "version": "0.2.2",
+  "scripts": {
+    "test": "node ./test/test.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}
