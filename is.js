@@ -142,48 +142,37 @@ var ngWords = [
  * @method enableId
  * @param  {String}   target
  * @param  {Array}    reservedWords (省略可能)
- * @param  {Function|Boolean} callback ({Error} err)
- *             callbackにtrueを設定した場合は、例外を発生させます
  * @return {Boolean}  success
  */
-is.enableId = function enableId (target, reservedWords, callback) {
+is.enableId = function enableId (target, reservedWords) {
 	'use strict';
 
-	if (is(Function, reservedWords) || is(Boolean, reservedWords)) {
-		callback = reservedWords;
-		reservedWords = null;
-	}
-
-	var err = null;
-
 	if (!is(String, target)) {
-		err = new Error('文字列ではありません');
+		// 文字列ではない
+		return false;
 
 	} else if (~ngWords.indexOf(target)) {
-		err = new Error('"' + target + '"はシステム予約語です');
+		// システム予約語
+		return false;
 
 	} else if (is(Array, reservedWords) && ~reservedWords.indexOf(target)) {
-		err = new Error('"' + target + '"は予約語です');
+		// 引数の予約語
+		return false;
 
 	} else if (!/^[a-z]([_0-9a-z]{0,18}[0-9a-z])?$/i.test(target)) {
-		err = new Error('２０文字以内の英数文字列ではありません');
+		// 20文字以内の英数字ではない
+		return false;
 
+	} else {
+
+		return true;
 	}
-
-	if (is(Function, callback)) {
-		callback(err);
-
-	} else if (err && callback) {
-		throw err;
-	}
-
-	return err === null;
 };
 
 /**
  * 予約語一覧を取得する
  * @method reservedWords
- * @param  {Array} optional
+ * @param  {Array} optional (省略可能)
  * @return {Array}
  */
 is.reservedWords = function reservedWords (optional) {
@@ -194,8 +183,9 @@ is.reservedWords = function reservedWords (optional) {
 		rtn = rtn.concat(optional);
 		rtn.sort();
 		return rtn;
+	} else {
+		return ngWords;
 	}
-	return ngWords;
 };
 
 /**

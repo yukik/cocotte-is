@@ -19,6 +19,13 @@ assert(!is(Date, new Date('unknown time')));
 assert(!is(Object, null));
 assert(!is(Function, new Fn()));
 
+// enableId 
+assert(is.enableId('abc'));
+assert(!is.enableId('null'));
+
+// reservedWords
+assert(is.reservedWords().indexOf('Array') >= 0);
+
 // getType
 assert(is.getType('abc') === String);
 assert(is.getType(1) === Number);
@@ -85,7 +92,6 @@ Klass.prototype.hallo = function () {
 	console.log('hallo');
 };
 assert(is.interfaceCheck(new Klass(), [['name', String, null]], ['hallo']));
-
 
 // ok
 console.log('test ok');
