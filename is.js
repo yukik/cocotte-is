@@ -263,7 +263,7 @@ is.between = function isBetween (min, target, max) {
 };
 
 /**
- * すべての値が空文字ではない文字列であるか判別します
+ * すべての値が文字列であるか判別します
  * @method allString
  * @param  {Array}  arr
  * @return {Boolean}
@@ -280,7 +280,7 @@ is.allString = function isAllString (target) {
 	}
 
 	return target.every(function (v) {
-		return is(String, v) && v.length;
+		return is(String, v);
 	});
 };
 
