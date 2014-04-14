@@ -9,9 +9,16 @@ var Fn = function Fn (){};
 // is
 assert(is(String, 'abc'));
 assert(is(Number, 1));
+assert(is(NaN, NaN));
+assert(is(Infinity, Infinity));
+assert(is(Infinity , Number.POSITIVE_INFINITY));
+assert(is(Number.NEGATIVE_INFINITY, -Infinity));
+assert(is(-Infinity, Number.NEGATIVE_INFINITY));
 assert(is(Date, new Date()));
+assert(is(NaN, new Date('abcde')));
 assert(is(Object, {}));
 assert(is(Function, Fn));
+assert(is(Fn, new Fn()));
 
 assert(!is(String, 1));
 assert(!is(Number, Infinity));
@@ -29,7 +36,9 @@ assert(is.reservedWords().indexOf('Array') >= 0);
 // getType
 assert(is.getType('abc') === String);
 assert(is.getType(1) === Number);
+assert(is.getType(Infinity) === Infinity);
 assert(is.getType(new Date()) === Date);
+assert(Number.isNaN(is.getType(new Date('abc'))));
 assert(is.getType({}) === Object);
 assert(is.getType(Fn) === Function);
 
@@ -66,12 +75,14 @@ assert(is.between(1,3,null));
 // is.allString
 assert(is.allString([]));
 assert(is.allString(['a', 'b', 'c']));
+assert(!is.allString('a'));
 assert(!is.allString([1, 2, 3]));
 assert(!is.allString(['a', 'b', 1]));
 
 // is.allNumber
 assert(is.allNumber([]));
 assert(is.allNumber([1, 2, 3]));
+assert(!is.allString(1));
 assert(!is.allNumber(['a', 'b', 'c']));
 assert(!is.allNumber([1, 2, '3']));
 

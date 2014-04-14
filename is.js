@@ -39,28 +39,51 @@
  * @static
  * @param  {String}  type
  * @param  {Mixed}   target
+ * @param  {Boolean} superCheck
  * @return {Boolean} isType
  */
 var is = function is (type, target) {
 	'use strict';
 
+	// undefined, null
 	if(target === void 0 || target === null) {
 		return type === target;
+	}
 
-	} else {
-		var ctor = target.constructor;
+	// 文字列
+	if (typeof target === 'string') {
+		return type === String;
+	}
 
-		if (ctor === Number && !isFinite(target)) {
-			return type === target || Number.isNaN(type) && Number.isNaN(target);
+	// 数字
+	if (typeof target === 'number') {
+		if (isFinite(target)) {
+			return type === Number;
 
-		} else if (ctor === Date && isNaN(target.getTime())) {
-			return Number.isNaN(type);
+		} else if (Number.isNaN(target)) {
+			return  Number.isNaN(type);
 
 		} else {
-			return type === ctor;
-
+			// Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
+			return type === target;
 		}
 	}
+
+	// 真偽値
+	if (typeof target === 'boolean') {
+		return type === Boolean;
+	}
+
+	// その他
+	var ctor = target.constructor;
+
+	// 不正な日付
+	if (ctor === Date && isNaN(target.getTime())) {
+		return Number.isNaN(type);
+	}
+
+	// コンストラクタとの一致
+	return type === ctor;
 };
 
 /**
@@ -77,23 +100,44 @@ var is = function is (type, target) {
 is.getType = function getType (target) {
 	'use strict';
 
+	// undefined, null
 	if(target === void 0 || target === null) {
 		return target;
+	}
 
-	} else {
-		var ctor = target.constructor;
+	// 文字列
+	if (typeof target === 'string') {
+		return String;
+	}
 
-		if (ctor === Number && !isFinite(target)) {
-			return target;
+	// 数字
+	if (typeof target === 'number') {
+		if (isFinite(target)) {
+			return Number;
 
-		} else if (ctor === Date && isNaN(target.getTime())) {
+		} else if (Number.isNaN(target)) {
 			return NaN;
 
 		} else {
-			return ctor;
-
+			// Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
+			return target;
 		}
 	}
+
+	// 真偽値
+	if (typeof target === 'boolean') {
+		return Boolean;
+	}
+
+	// その他
+	var ctor = target.constructor;
+
+	// 日付
+	if (ctor === Date) {
+		return isNaN(target.getTime()) ? NaN : Date;
+	}
+
+	return ctor;
 };
 
 /*
@@ -141,10 +185,10 @@ var ngWords = [
  * 識別子として利用可能かどうかを確認します
  * @method enableId
  * @param  {String}   target
- * @param  {Array}    reservedWords (省略可能)
+ * @param  {Array}    optional (省略可能)
  * @return {Boolean}  success
  */
-is.enableId = function enableId (target, reservedWords) {
+is.enableId = function enableId (target, optional) {
 	'use strict';
 
 	if (!is(String, target)) {
@@ -155,8 +199,8 @@ is.enableId = function enableId (target, reservedWords) {
 		// システム予約語
 		return false;
 
-	} else if (is(Array, reservedWords) && ~reservedWords.indexOf(target)) {
-		// 引数の予約語
+	} else if (is.allString(optional) && ~optional.indexOf(target)) {
+		// オプションの予約語
 		return false;
 
 	} else if (!/^[a-z]([_0-9a-z]{0,18}[0-9a-z])?$/i.test(target)) {

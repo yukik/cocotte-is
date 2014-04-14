@@ -1,18 +1,24 @@
+0.2.5 / 2014-04-14
+===================
+
+  * is 速度重視のリファクタリング
+  * is.getType 速度重視のリファクタリング
+
 0.2.4 / 2014-04-03
 ===================
 
-  * is.enableId: 引数callbackを廃止
+  * is.enableId 引数callbackを廃止
 
 0.2.3 / 2014-03-30
 ===================
 
-  * is.undefined: undefinedを安全に比較するメソッド追加
+  * is.undefined undefinedを安全に比較するメソッド追加
   * その他のいくつかの関数: undefinedとの比較をvoid 0との比較に変更
 
 0.2.2 / 2013-10-14
 ===================
 
-  * is.enableId: reservedWords省略時のcallback指定に対応
+  * is.enableId reservedWords省略時のcallback指定に対応
 
 0.2.0 / 2013-10-08
 ===================
