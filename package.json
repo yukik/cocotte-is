@@ -1,7 +1,7 @@
 {
   "name": "cocotte-is",
   "description": "node.js変数チェック用ライブラリ",
-  "homepage": "https://github.com/yukik",
+  "homepage": "https://github.com/yukik/cocotte-is",
   "keywords": [
     "tools"
   ],
