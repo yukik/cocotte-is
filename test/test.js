@@ -55,7 +55,7 @@ assert(!is.unset('abc'));
 
 // is.arg
 (function(){
-	assert(is.arg(arguments));
+  assert(is.arg(arguments));
 })();
 assert(!is.arg('abc'));
 
@@ -97,10 +97,10 @@ assert(!is.matches([Number, String, Date], ['a', 'b'], [0, 1]));
 
 // is.interfaceCheck
 var Klass = function (name) {
-	this.name = name || null;
+  this.name = name || null;
 };
 Klass.prototype.hallo = function () {
-	console.log('hallo');
+  console.log('hallo');
 };
 assert(is.interfaceCheck(new Klass(), [['name', String, null]], ['hallo']));
 

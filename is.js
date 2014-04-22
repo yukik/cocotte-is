@@ -2,6 +2,7 @@
  * Copyright(c) 2013 Yuki Kurata <yuki.kurata@gmail.com>
  * MIT Licensed
  */
+'use strict';
 
 /** 
  * 型判定機能を追加する為の簡易ライブラリです
@@ -37,53 +38,50 @@
  * @for is
  * @method  is
  * @static
- * @param  {String}  type
+ * @param  {Mixed}   type
  * @param  {Mixed}   target
- * @param  {Boolean} superCheck
  * @return {Boolean} isType
  */
 var is = function is (type, target) {
-	'use strict';
+  // undefined, null
+  if(target === void 0 || target === null) {
+    return type === target;
+  }
 
-	// undefined, null
-	if(target === void 0 || target === null) {
-		return type === target;
-	}
+  // 文字列
+  if (typeof target === 'string') {
+    return type === String;
+  }
 
-	// 文字列
-	if (typeof target === 'string') {
-		return type === String;
-	}
+  // 数字
+  if (typeof target === 'number') {
+    if (isFinite(target)) {
+      return type === Number;
 
-	// 数字
-	if (typeof target === 'number') {
-		if (isFinite(target)) {
-			return type === Number;
+    } else if (Number.isNaN(target)) {
+      return  Number.isNaN(type);
 
-		} else if (Number.isNaN(target)) {
-			return  Number.isNaN(type);
+    } else {
+      // Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
+      return type === target;
+    }
+  }
 
-		} else {
-			// Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
-			return type === target;
-		}
-	}
+  // 真偽値
+  if (typeof target === 'boolean') {
+    return type === Boolean;
+  }
 
-	// 真偽値
-	if (typeof target === 'boolean') {
-		return type === Boolean;
-	}
+  // その他
+  var ctor = target.constructor;
 
-	// その他
-	var ctor = target.constructor;
+  // 不正な日付
+  if (ctor === Date && isNaN(target.getTime())) {
+    return Number.isNaN(type);
+  }
 
-	// 不正な日付
-	if (ctor === Date && isNaN(target.getTime())) {
-		return Number.isNaN(type);
-	}
-
-	// コンストラクタとの一致
-	return type === ctor;
+  // コンストラクタとの一致
+  return type === ctor;
 };
 
 /**
@@ -98,46 +96,45 @@ var is = function is (type, target) {
  * @return {Object} type
  */
 is.getType = function getType (target) {
-	'use strict';
 
-	// undefined, null
-	if(target === void 0 || target === null) {
-		return target;
-	}
+  // undefined, null
+  if(target === void 0 || target === null) {
+    return target;
+  }
 
-	// 文字列
-	if (typeof target === 'string') {
-		return String;
-	}
+  // 文字列
+  if (typeof target === 'string') {
+    return String;
+  }
 
-	// 数字
-	if (typeof target === 'number') {
-		if (isFinite(target)) {
-			return Number;
+  // 数字
+  if (typeof target === 'number') {
+    if (isFinite(target)) {
+      return Number;
 
-		} else if (Number.isNaN(target)) {
-			return NaN;
+    } else if (Number.isNaN(target)) {
+      return NaN;
 
-		} else {
-			// Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
-			return target;
-		}
-	}
+    } else {
+      // Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
+      return target;
+    }
+  }
 
-	// 真偽値
-	if (typeof target === 'boolean') {
-		return Boolean;
-	}
+  // 真偽値
+  if (typeof target === 'boolean') {
+    return Boolean;
+  }
 
-	// その他
-	var ctor = target.constructor;
+  // その他
+  var ctor = target.constructor;
 
-	// 日付
-	if (ctor === Date) {
-		return isNaN(target.getTime()) ? NaN : Date;
-	}
+  // 日付
+  if (ctor === Date) {
+    return isNaN(target.getTime()) ? NaN : Date;
+  }
 
-	return ctor;
+  return ctor;
 };
 
 /*
@@ -145,40 +142,40 @@ is.getType = function getType (target) {
  * @property {Array} ngWords
  */
 var ngWords = [
-	// グローバルオブジェクト
-	'Array', 'ArrayBuffer', 'Boolean', 'Collator', 'DataView'
-  , 'Date', 'DateTimeFormat', 'decodeURI', 'decodeURIComponent', 'encodeURI'
-  , 'encodeURIComponent', 'Error', 'eval', 'EvalError', 'Float32Array'
-  , 'Float64Array', 'Function', 'Infinity', 'Intl', 'Int16Array'
-  , 'Int32Array', 'Int8Array', 'isFinite', 'isNaN', 'Iterator'
-  , 'JSON', 'Math', 'NaN', 'Number', 'NumberFormat'
-  , 'Object', 'parseFloat', 'parseInt', 'RangeError', 'ReferenceError'
-  , 'RegExp', 'StopIteration', 'String', 'SyntaxError', 'TypeError'
-  , 'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray', 'undefined'
-  , 'uneval', 'URIError'
-	// 構文予約語
-  , 'break', 'delete', 'if', 'this', 'while'
-  , 'case', 'do', 'in', 'throw', 'with'
-  , 'catch', 'else', 'instanceof', 'try', 'continue'
-  , 'finally', 'new', 'typeof', 'debugger', 'for'
-  , 'return', 'var', 'default', 'function', 'switch'
-  , 'void', 'class', 'const', 'enum', 'export'
-  , 'extends', 'import', 'super', 'implements', 'interface'
-  , 'let', 'package', 'private', 'protected', 'public'
-  , 'static', 'yield'
-	// ECMAScript
-  , 'null', 'true', 'false'
-	// addtional
-  , 'get', 'set', 'arguments'
-	// node.js
-  , 'exports', 'require', 'module', '__filename', '__dirname'
-  , 'DTRACE_NET_SERVER_CONNECTION', 'DTRACE_NET_STREAM_END'
-  , 'DTRACE_NET_SOCKET_READ', 'DTRACE_NET_SOCKET_WRITE'
-  , 'DTRACE_HTTP_SERVER_REQUEST', 'DTRACE_HTTP_SERVER_RESPONSE'
-  , 'DTRACE_HTTP_CLIENT_REQUEST', 'DTRACE_HTTP_CLIENT_RESPONSE'
-  , 'global', 'process', 'GLOBAL', 'root', 'Buffer'
-  , 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'setImmediate'
-  , 'clearImmediate', 'console'
+  // グローバルオブジェクト
+  'Array', 'ArrayBuffer', 'Boolean', 'Collator', 'DataView',
+  'Date', 'DateTimeFormat', 'decodeURI', 'decodeURIComponent', 'encodeURI',
+  'encodeURIComponent', 'Error', 'eval', 'EvalError', 'Float32Array',
+  'Float64Array', 'Function', 'Infinity', 'Intl', 'Int16Array',
+  'Int32Array', 'Int8Array', 'isFinite', 'isNaN', 'Iterator',
+  'JSON', 'Math', 'NaN', 'Number', 'NumberFormat',
+  'Object', 'parseFloat', 'parseInt', 'RangeError', 'ReferenceError',
+  'RegExp', 'StopIteration', 'String', 'SyntaxError', 'TypeError',
+  'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray', 'undefined',
+  'uneval', 'URIError',
+  // 構文予約語,
+  'break', 'delete', 'if', 'this', 'while',
+  'case', 'do', 'in', 'throw', 'with',
+  'catch', 'else', 'instanceof', 'try', 'continue',
+  'finally', 'new', 'typeof', 'debugger', 'for',
+  'return', 'var', 'default', 'function', 'switch',
+  'void', 'class', 'const', 'enum', 'export',
+  'extends', 'import', 'super', 'implements', 'interface',
+  'let', 'package', 'private', 'protected', 'public',
+  'static', 'yield',
+  // ECMAScript,
+  'null', 'true', 'false',
+  // addtional,
+  'get', 'set', 'arguments',
+  // node.js,
+  'exports', 'require', 'module', '__filename', '__dirname',
+  'DTRACE_NET_SERVER_CONNECTION', 'DTRACE_NET_STREAM_END',
+  'DTRACE_NET_SOCKET_READ', 'DTRACE_NET_SOCKET_WRITE',
+  'DTRACE_HTTP_SERVER_REQUEST', 'DTRACE_HTTP_SERVER_RESPONSE',
+  'DTRACE_HTTP_CLIENT_REQUEST', 'DTRACE_HTTP_CLIENT_RESPONSE',
+  'global', 'process', 'GLOBAL', 'root', 'Buffer',
+  'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'setImmediate',
+  'clearImmediate', 'console'
 ].sort();
 
 /**
@@ -189,28 +186,27 @@ var ngWords = [
  * @return {Boolean}  success
  */
 is.enableId = function enableId (target, optional) {
-	'use strict';
 
-	if (!is(String, target)) {
-		// 文字列ではない
-		return false;
+  if (!is(String, target)) {
+    // 文字列ではない
+    return false;
 
-	} else if (~ngWords.indexOf(target)) {
-		// システム予約語
-		return false;
+  } else if (~ngWords.indexOf(target)) {
+    // システム予約語
+    return false;
 
-	} else if (is.allString(optional) && ~optional.indexOf(target)) {
-		// オプションの予約語
-		return false;
+  } else if (is.allString(optional) && ~optional.indexOf(target)) {
+    // オプションの予約語
+    return false;
 
-	} else if (!/^[a-z]([_0-9a-z]{0,18}[0-9a-z])?$/i.test(target)) {
-		// 20文字以内の英数字ではない
-		return false;
+  } else if (!/^[a-z]([_0-9a-z]{0,18}[0-9a-z])?$/i.test(target)) {
+    // 20文字以内の英数字ではない
+    return false;
 
-	} else {
+  } else {
 
-		return true;
-	}
+    return true;
+  }
 };
 
 /**
@@ -220,16 +216,15 @@ is.enableId = function enableId (target, optional) {
  * @return {Array}
  */
 is.reservedWords = function reservedWords (optional) {
-	'use strict';
-	if (is.allString(optional)) {
-		var rtn = [];
-		rtn = rtn.concat(ngWords);
-		rtn = rtn.concat(optional);
-		rtn.sort();
-		return rtn;
-	} else {
-		return ngWords;
-	}
+  if (is.allString(optional)) {
+    var rtn = [];
+    rtn = rtn.concat(ngWords);
+    rtn = rtn.concat(optional);
+    rtn.sort();
+    return rtn;
+  } else {
+    return ngWords;
+  }
 };
 
 /**
@@ -239,8 +234,7 @@ is.reservedWords = function reservedWords (optional) {
  * @return {Boolean}
  */
 is.undefined = function isUndefined (target) {
-	'use strict';
-	return target === void 0;
+  return target === void 0;
 };
 
 /**
@@ -251,8 +245,7 @@ is.undefined = function isUndefined (target) {
  * @return {Boolean}
  */
 is.unset = function isUnset (target) {
-	'use strict';
-	return target === null || target === void 0 || target === '';
+  return target === null || target === void 0 || target === '';
 };
 
 /** 
@@ -264,8 +257,7 @@ is.unset = function isUnset (target) {
  * @return {Boolean} isArgumentsObject
  */
 is.arg = function isArg (target) {
-	'use strict';
-	return is(Object, target) && target.hasOwnProperty('callee');
+  return is(Object, target) && target.hasOwnProperty('callee');
 };
 
 /**
@@ -276,8 +268,7 @@ is.arg = function isArg (target) {
  * @return {Boolaen}
  */
 is.error = function isError (target) {
-	'use strict';
-	return target instanceof Error;
+  return target instanceof Error;
 };
 
 /**
@@ -289,21 +280,20 @@ is.error = function isError (target) {
  * @return {Boolean}
  */
 is.between = function isBetween (min, target, max) {
-	'use strict';
 
-	if (!is(Number, target)) {
-		return false;
+  if (!is(Number, target)) {
+    return false;
 
-	} else if (is(Number, min) && target < min) {
-		return false;
+  } else if (is(Number, min) && target < min) {
+    return false;
 
-	} else if (is(Number, max) && max < target) {
-		return false;
+  } else if (is(Number, max) && max < target) {
+    return false;
 
-	} else {
-		return true;
+  } else {
+    return true;
 
-	}
+  }
 };
 
 /**
@@ -313,19 +303,18 @@ is.between = function isBetween (min, target, max) {
  * @return {Boolean}
  */
 is.allString = function isAllString (target) {
-	'use strict';
 
-	if (is.arg(target)) {
-		target = Array.prototype.slice.call(target);
+  if (is.arg(target)) {
+    target = Array.prototype.slice.call(target);
 
-	} else if (!Array.isArray(target)) {
-		return false;
+  } else if (!Array.isArray(target)) {
+    return false;
 
-	}
+  }
 
-	return target.every(function (v) {
-		return is(String, v);
-	});
+  return target.every(function (v) {
+    return is(String, v);
+  });
 };
 
 /**
@@ -335,19 +324,18 @@ is.allString = function isAllString (target) {
  * @return {Boolean}
  */
 is.allNumber = function isAllNumber (target) {
-	'use strict';
 
-	if (is.arg(target)) {
-		target = Array.prototype.slice.call(target);
+  if (is.arg(target)) {
+    target = Array.prototype.slice.call(target);
 
-	} else if (!Array.isArray(target)) {
-		return false;
+  } else if (!Array.isArray(target)) {
+    return false;
 
-	}
+  }
 
-	return target.every(function (v) {
-		return is(Number, v);
-	});
+  return target.every(function (v) {
+    return is(Number, v);
+  });
 };
 
 /**
@@ -357,19 +345,18 @@ is.allNumber = function isAllNumber (target) {
  * @return {Boolean}
  */
 is.unique = function isUnique (target) {
-	'use strict';
 
-	if (is.arg(target)) {
-		target = Array.prototype.slice.call(target);
+  if (is.arg(target)) {
+    target = Array.prototype.slice.call(target);
 
-	} else if (!Array.isArray(target)) {
-		return false;
+  } else if (!Array.isArray(target)) {
+    return false;
 
-	}
+  }
 
-	return target.every(function (v, i, self) {
-		return self.indexOf(v) === self.lastIndexOf(v);
-	});
+  return target.every(function (v, i, self) {
+    return self.indexOf(v) === self.lastIndexOf(v);
+  });
 
 };
 
@@ -386,25 +373,24 @@ is.unique = function isUnique (target) {
  * @return {Boolean} match
  */
 is.matches = function isMatches (types, target, must) {
-	'use strict';
 
-	// 対象が配列もしくはArgumentsではない場合はfalseを返す
-	if (!Array.isArray(types) && !is.arg(target)) {
-		return false;
-	}
+  // 対象が配列もしくはArgumentsではない場合はfalseを返す
+  if (!Array.isArray(types) && !is.arg(target)) {
+    return false;
+  }
 
-	// 判別
-	if(Array.isArray(must)) {
-		// 省略可能な引数が存在する場合
-		return types.every(function (tp, i) {
-			return (!~must.indexOf(i) && is.unset(target[i])) || is(tp, target[i]);
-		});
+  // 判別
+  if(Array.isArray(must)) {
+    // 省略可能な引数が存在する場合
+    return types.every(function (tp, i) {
+      return (!~must.indexOf(i) && is.unset(target[i])) || is(tp, target[i]);
+    });
 
-	} else {
-		// すべての引数が必須
-		return types.every(function (tp, i) { return is(tp, target[i]); });
+  } else {
+    // すべての引数が必須
+    return types.every(function (tp, i) { return is(tp, target[i]); });
 
-	}
+  }
 };
 
 /**
@@ -418,27 +404,26 @@ is.matches = function isMatches (types, target, must) {
  *                      [メソッド名1, メソッド名2, ...]
  */
 is.interfaceCheck = function interfaceCheck (target, properties, methods) {
-	'use strict';
-	properties.forEach(function (p) {
-		var name = p[0]
-		  , val  = target[name];
-		for(var i = 1, len = p.length; i < len; i++) {
-			if (is(p[i], val)) {
-				return;
-			}
-		}
-		var msg = 'インターフェースエラー：プロパティ"' + name + '"の型が一致しません';
-		throw new Error(msg);
-	});
+  properties.forEach(function (p) {
+    var name = p[0]
+      , val  = target[name];
+    for(var i = 1, len = p.length; i < len; i++) {
+      if (is(p[i], val)) {
+        return;
+      }
+    }
+    var msg = 'インターフェースエラー：プロパティ"' + name + '"の型が一致しません';
+    throw new Error(msg);
+  });
 
-	methods.forEach(function (m) {
-		if (!is(Function, target[m])) {
-			var msg = 'インターフェースエラー：メソッド"' + m + '"が設定されていません';
-			throw new Error(msg);
-		}
-	});
+  methods.forEach(function (m) {
+    if (!is(Function, target[m])) {
+      var msg = 'インターフェースエラー：メソッド"' + m + '"が設定されていません';
+      throw new Error(msg);
+    }
+  });
 
-	return true;
+  return true;
 };
 
 module.exports = exports = is;

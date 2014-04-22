@@ -3,6 +3,7 @@
   "description": "node.js変数チェック用ライブラリ",
   "homepage": "https://github.com/yukik/cocotte-is",
   "keywords": [
+    "cocotte",
     "tools"
   ],
   "author": "Yuki Kurata <yuki.kurata@gmail.com>",
@@ -11,7 +12,7 @@
     "url": "git://github.com/yukik/cocotte-is.git"
   },
   "main": "is.js",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "scripts": {
     "test": "node ./test/test.js"
   },

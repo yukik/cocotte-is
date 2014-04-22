@@ -5,9 +5,10 @@ node.js変数チェック用ライブラリ
 
 jsに静的型指定機能を追加する為の簡易ライブラリです
 
-underscoreの補完を目的として作成されているため
-underscoreに同等の機能が存在する場合はそちらを優先して使用してください
-ただしcocotte-isはunderscoreには依存していません
+underscoreの補完を目的として作成されているため、
+underscoreに同等の機能が存在する場合はそちらを優先して使用してください。
+
+ただしcocotte-isはunderscoreには依存していません。
 単体で動作します
 
 #使用方法
@@ -30,13 +31,24 @@ var fn = function (p1) {
 
 型判定を行います  
 
+`is(型, 値)`と使用し、真偽値を返します。  
+型は基本的に値のconstructorと一致した時にtrueです。
+
+ただし、いくつかの値に関しては型はconstructor以外になります
+
+```javascript
+var x = is(String, 'abc');
+var y = is(Infinity, 1/0);
+```
+
 instanceofに似ていますが、プロトタイプチェーンをたどりません  
 例えばnew String('abc')をStringであるかつObjectではないと判別するには  
 instanceofの代わりにisを使用する必要があります  
 またnull, NaNなどを判別する場合も使用できます  
-instanceofとは異なる判定方法を行うものを次にまとめます  
 
- + undefined               : is(undefined, x) -> true
+値のconstructorではないものは以下の通りです。
+
+ + undefined               : is(undefined, x) -> true ※注意
  + null                    : is(null     , x) -> true
  + NaN                     : is(NaN      , x) -> true
  + Infinity                : is(Infinity , x) -> true
@@ -44,33 +56,60 @@ instanceofとは異なる判定方法を行うものを次にまとめます
  + Number.NEGATIVE_INFINITY: is(-Infinity, x) -> true
  + new Data('abcdefg')     : is(NaN      , x) -> true
 
-undefinedは安全に検証する為のis.undefined(x)を使用してください
+（注意）`undefined`は安全に検証する為のis.undefined(x)を使用してください
 
-それぞれ、Number/Dateと型判定時にfalseになります
+##is.getType
+型を返します
+
+```
+var tp = is.getType('abc');
+```
+
+is関数と似ていますが、一致を判定するのはなく型をそのまま返します
+
 
 ##is.enableId 
 識別子として利用可能かどうかを確認します
 
+```
+var x = is.enableId('xyz');
+var y = is.enableId('xyz', ['abc', 'xyz']);
+```
+
+識別子は予約語ではなく、20文字以内の英数字である必要があります。  
+また、第2引数に追加の予約語を設定する事が出来ます。
+
 #is.reservedWords
 予約語一覧を取得する
 
-##is.getType
-型を返します  
-is関数とロジックは似ています  
-ただ、一致を判定するのはなく型をそのまま返します  
+```
+var ls = is.reservedWords();
+```
 
 ##is.undefined
-対象が未設定の値(undefined)の場合にtrueを返します  
+対象が未設定の値(undefined)の場合にtrueを返します。  
 undefinedを安全に検証する事ができます
+
+```
+var x = is.undefined(123456);
+```
 
 ##is.unset
 対象がnull、undefinedの場合にtrueを返します  
 空文字や数値の0と厳密に区別を行いたい場合に使用してください  
 
+```
+var x = is.unset(0);
+```
+
 ##is.arg
 対象がArgumentsオブジェクトの場合はtrueを返します  
 実際にはArgumentsは定義がないですが、is(Arguments, x)のように動作します。  
-_.isArgumentsと同じ処理です  
+_.isArgumentsと同じです  
+
+```
+var x = is.arg(arguments);
+```
 
 ##is.error
 エラーオブジェクトかどうかを確認します  
