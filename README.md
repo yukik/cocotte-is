@@ -13,7 +13,7 @@ underscoreに同等の機能が存在する場合はそちらを優先して使�
 
 #使用方法
 
-```js:example.js
+```javascirpt:example.js
 
 var is = require('cocotte-is);
 
@@ -61,7 +61,7 @@ instanceofの代わりにisを使用する必要があります
 ##is.getType
 型を返します
 
-```
+```javascirpt
 var tp = is.getType('abc');
 ```
 
@@ -71,7 +71,7 @@ is関数と似ていますが、一致を判定するのはなく型をそのま
 ##is.enableId 
 識別子として利用可能かどうかを確認します
 
-```
+```javascirpt
 var x = is.enableId('xyz');
 var y = is.enableId('xyz', ['abc', 'xyz']);
 ```
@@ -82,7 +82,7 @@ var y = is.enableId('xyz', ['abc', 'xyz']);
 #is.reservedWords
 予約語一覧を取得する
 
-```
+```javascirpt
 var ls = is.reservedWords();
 ```
 
@@ -90,7 +90,7 @@ var ls = is.reservedWords();
 対象が未設定の値(undefined)の場合にtrueを返します。  
 undefinedを安全に検証する事ができます
 
-```
+```javascirpt
 var x = is.undefined(123456);
 ```
 
@@ -98,7 +98,7 @@ var x = is.undefined(123456);
 対象がnull、undefinedの場合にtrueを返します  
 空文字や数値の0と厳密に区別を行いたい場合に使用してください  
 
-```
+```javascirpt
 var x = is.unset(0);
 ```
 
@@ -107,57 +107,100 @@ var x = is.unset(0);
 実際にはArgumentsは定義がないですが、is(Arguments, x)のように動作します。  
 _.isArgumentsと同じです  
 
-```
+```javascirpt
 var x = is.arg(arguments);
 ```
 
 ##is.error
 エラーオブジェクトかどうかを確認します  
 この関数はプロトタイプチェーンをさかのぼります  
+isとの違いは`is(Error, new TypeError('x'))`はfalseになる事に対し
+下記は`true`になります
+
+```javascirpt
+var x = is.error(new TypeError('文字列ではありません'));
+```
 
 ##is.between
-値が範囲内かどうかを確認します
+値が範囲内かどうかを確認します  
+引数はすべて数字もしくはnullである必要があります
+
+下記は、xが1から10の間に収まっているかを判別します  
+開始もしくは終了の値がnullの場合は、以上・以下の判別です
+
+```javascript
+var x = 5;
+var y = is.between(1, x, 10);
+```
 
 ##is.allString
 すべての値が空文字ではない文字列であるか判別します
 
+```javascript
+var x = is.allString(['a', 'b', 'c']);
+```
+
 ##is.allNumber
-すべての値が有効な数字であるか判別します
+すべての値が有効な数字であるか判別します  
+`NaN`,`Infinity`, `Number.NEGATIVE_INFINITY`は無効な数字と見なします
+
+```javascript
+var x = is.allString([1, 2, 3]);
+```
 
 ##is.unique
-すべての値が一意であるか判別します
+すべての値が一意であるか判別します。  
+各要素の判定は`===`で行われます。
+
+```javascript
+var x = is.unique([1, 2, 3]);
+```
 
 ##is.matches
 すべての型が一致するかの判定を行います  
   @method matches  
   @static  
   @param  {Array}   types  
-  @param  {Array}   target  
+  @param  {Array|Arguments}   target  
   @param  {Object}  must  省略可能  
-  * 省略出来ないインデックス。設定していない場合はすべて省略不可とします
-  * 省略可の値はis.unsetがtrueでも判定をパスします
-  @return {Boolean} match
+    省略出来ない値のインデックス。設定していない場合はすべて省略不可とします  
+    省略可の値はis.unsetがtrueでも判定をパスします  
+  @return {Boolean} match  
 
-
-```js:example.js
-
+```javascript
 var fn = function (p1, p2, p3) {
     if( ! is.matches([String, Number, Array], arguments) {
          throw new TypeError('引数の型が一致しません');
     }
 };
-
 ```
 
 ##is.interfaceCheck
-対象のオブジェクトがプロパティとメソッドを保持しているかを確認します。
-チェックに失敗した場合は例外を発生させます。
-  @method interfaceCheck
-  @param  {Object}  target
-  @param  {Array}   properties
-                       [[プロパティ名, 許容型1, 許容型2,.. ], ...]
-  @param  {Array}   methods
-                       [メソッド名1, メソッド名2, ...]
+
+対象のオブジェクトがプロパティとメソッドを保持しているかを確認します。  
+  @method interfaceCheck  
+  @param  {Object}  target  
+  @param  {Array}   properties [[プロパティ名, 許容型1, 許容型2,.. ], ...]  
+  @param  {Array}   methods [メソッド名1, メソッド名2, ...]  
+  @param  {Function} callback ({Error} err)  
+
+```javascript
+var target = {
+  prop1: 'foo',
+  prop2: 23,
+  prop3: null,
+  meth1: function (val) {this.prop1 = val;}
+};
+
+var properties = [['prop1', String], ['prop2', Number], ['prop3', String, null]];
+
+var methods = ['meth1'];
+
+var x = is.interfaceCheck(target, properties, methods, function(err) {
+  if (err) console.error(err);
+});
+```
+
 
 
 

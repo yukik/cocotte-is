@@ -58,8 +58,8 @@ var is = function is (type, target) {
     if (isFinite(target)) {
       return type === Number;
 
-    } else if (Number.isNaN(target)) {
-      return  Number.isNaN(type);
+    } else if (target !== target) { // NaN
+      return  type !== type;
 
     } else {
       // Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY
@@ -281,19 +281,13 @@ is.error = function isError (target) {
  */
 is.between = function isBetween (min, target, max) {
 
-  if (!is(Number, target)) {
-    return false;
+  min = min === null ? -Infinity : min;
+  max = max === null ? Infinity : max;
 
-  } else if (is(Number, min) && target < min) {
-    return false;
-
-  } else if (is(Number, max) && max < target) {
-    return false;
-
-  } else {
-    return true;
-
-  }
+  return typeof min === 'number' &&
+         typeof target === 'number' &&
+         typeof max === 'number' &&
+         min <= target && target <= max;
 };
 
 /**
@@ -354,6 +348,12 @@ is.unique = function isUnique (target) {
 
   }
 
+  // NaN対策
+  var nanCnt = target.reduce(function(x, v){return v !== v ? x + 1: x;}, 0);
+  if (nanCnt >= 2) {
+    return false;
+  }
+
   return target.every(function (v, i, self) {
     return self.indexOf(v) === self.lastIndexOf(v);
   });
@@ -395,35 +395,52 @@ is.matches = function isMatches (types, target, must) {
 
 /**
  * 対象のオブジェクトがプロパティとメソッドを保持しているかを確認します。
- * チェックに失敗した場合は例外を発生させます。
  * @method interfaceCheck
  * @param  {Object}  target
  * @param  {Array}   properties
  *                      [[プロパティ名, 許容型1, 許容型2,.. ], ...]
  * @param  {Array}   methods
  *                      [メソッド名1, メソッド名2, ...]
+ * @param  {Function} callback ({Error} err)
+ * @return {Boolean} result
  */
-is.interfaceCheck = function interfaceCheck (target, properties, methods) {
-  properties.forEach(function (p) {
-    var name = p[0]
-      , val  = target[name];
-    for(var i = 1, len = p.length; i < len; i++) {
-      if (is(p[i], val)) {
-        return;
+is.interfaceCheck = function interfaceCheck (target, properties, methods, callback) {
+  
+  var errorProperties = [];
+  var errorMethods = [];
+
+  if (properties) {
+    properties.reduce(function (err, p) {
+      var name = p[0];
+      var val  = target[name];
+      for(var i = 1, len = p.length; i < len; i++) {
+        if (is(p[i], val)) {
+          return err;
+        }
       }
-    }
-    var msg = 'インターフェースエラー：プロパティ"' + name + '"の型が一致しません';
-    throw new Error(msg);
-  });
+      err.push(name);
+      return err;
+    }, errorProperties);
+  }
 
-  methods.forEach(function (m) {
-    if (!is(Function, target[m])) {
-      var msg = 'インターフェースエラー：メソッド"' + m + '"が設定されていません';
-      throw new Error(msg);
-    }
-  });
+  if (methods) {
+    methods.reduce(function (err, m) {
+      if (!is(Function, target[m])) {
+        err.push(m);
+      }
+      return err;
+    }, errorMethods);
+  }
 
-  return true;
+  var err = null;
+
+  if (errorProperties.length + errorMethods.length) {
+    err = new Error(
+      (errorProperties.length > 0 ? 'プロパティ:' + errorProperties.join() + '  ': '') +
+      (errorMethods.length > 0 ? 'メソッド:' + errorMethods.join() : ''));
+  }
+  callback(err);
+  return !err;
 };
 
 module.exports = exports = is;

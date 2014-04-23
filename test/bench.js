@@ -40,3 +40,10 @@ for(var i=0; i < 100000000; i++) {
 
 var t2 = (new Date()).getTime();
 console.log('old version: ' + (t2 - t1));
+
+
+var assert = require('assert');
+
+assert(t1 - t0 < t2 - t1);
+
+console.log('test ok');
