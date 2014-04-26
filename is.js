@@ -333,6 +333,28 @@ is.allNumber = function isAllNumber (target) {
 };
 
 /**
+ * すべての値が指定した型の要素の配列かどうかを判別します
+ * @method all
+ * @param  {Mixed} type
+ * @param  {Array} target
+ * @return {Boolean}
+ */
+is.all = function isAll (type, target) {
+
+  if (is.arg(target)) {
+    target = Array.prototype.slice.call(target);
+
+  } else if (!Array.isArray(target)) {
+    return false;
+
+  }
+
+  return target.every(function (v) {
+    return is(type, v);
+  });
+};
+
+/**
  * すべての値が一意であるか判別します
  * @method unique
  * @param  {Array} target
@@ -439,7 +461,9 @@ is.interfaceCheck = function interfaceCheck (target, properties, methods, callba
       (errorProperties.length > 0 ? 'プロパティ:' + errorProperties.join() + '  ': '') +
       (errorMethods.length > 0 ? 'メソッド:' + errorMethods.join() : ''));
   }
-  callback(err);
+  if (callback) {
+    callback(err);
+  }
   return !err;
 };
 
