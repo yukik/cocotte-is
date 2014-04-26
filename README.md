@@ -148,6 +148,13 @@ var x = is.allString(['a', 'b', 'c']);
 var x = is.allString([1, 2, 3]);
 ```
 
+##is.all
+すべての値が指定した型の要素の配列かどうかを判別します  
+
+```javascript
+var x = is.all(Date, [new Date(), new Date(), '2014-01-12']);
+```
+
 ##is.unique
 すべての値が一意であるか判別します。  
 各要素の判定は`===`で行われます。

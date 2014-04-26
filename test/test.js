@@ -82,9 +82,16 @@ assert(!is.allString(['a', 'b', 1]));
 // is.allNumber
 assert(is.allNumber([]));
 assert(is.allNumber([1, 2, 3]));
-assert(!is.allString(1));
+assert(!is.allNumber(1));
 assert(!is.allNumber(['a', 'b', 'c']));
 assert(!is.allNumber([1, 2, '3']));
+
+// is.all
+assert(is.all(Date, []));
+assert(is.all(Date, [new Date(), new Date(), new Date()]));
+assert(!is.all(Date, [new Date(), new Date(), '2000-1-1']));
+assert(!is.all(Date, ['a', 'b', 'c']));
+assert(!is.all(Date, new Date()));
 
 // is.unique
 assert(is.unique([1, 2, 3]));
