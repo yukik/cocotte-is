@@ -1,9 +1,8 @@
-var is = require('../is');
+'use strict';
 
+var cis = require('..');
 
-
-var oldIs = function is (type, target) {
-  'use strict';
+var oldIs = function oldIs (type, target) {
 
   if(target === void 0 || target === null) {
     return type === target;
@@ -28,7 +27,7 @@ var oldIs = function is (type, target) {
 var t0 = (new Date()).getTime();
 
 for(var i=0; i < 100000000; i++) {
-  is(Boolean, true);
+  cis(Boolean, true);
 }
 
 var t1 = (new Date()).getTime();

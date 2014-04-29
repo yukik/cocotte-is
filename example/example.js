@@ -1,3 +1,3 @@
-var is = require('../is');
+var cis = require('..');
 
-console.log(is(String, 'abc'));
+console.log(cis(String, 'abc'));
