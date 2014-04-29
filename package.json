@@ -1,6 +1,6 @@
 {
   "name": "cocotte-is",
-  "description": "node.js変数チェック用ライブラリ",
+  "description": "変数チェック用ライブラリ",
   "homepage": "https://github.com/yukik/cocotte-is",
   "keywords": [
     "cocotte",
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git://github.com/yukik/cocotte-is.git"
   },
-  "main": "is.js",
-  "version": "0.2.7",
+  "main": "cis.js",
+  "version": "0.2.9",
   "scripts": {
     "test": "node ./test/test.js"
   },

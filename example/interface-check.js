@@ -1,7 +1,6 @@
 'use strict';
 
-var is = require('../is');
-
+var cis = require('..');
 
 var target = {
   prop1: 'foo',
@@ -14,8 +13,10 @@ var properties = [['prop1', String], ['prop2', Number], ['prop3', String, null]]
 
 var methods = ['meth1'];
 
-var x = is.interfaceCheck(target, properties, methods, function(err) {
-  if (err) console.error(err);
+var x = cis.interfaceCheck(target, properties, methods, function(err) {
+  if (err) {
+    console.error(err);
+  }
 });
 
 console.log(x);

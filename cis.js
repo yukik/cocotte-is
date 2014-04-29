@@ -24,25 +24,25 @@
  *
  * instanceofとは異なる判定方法を行うものを次にまとめます
  * 
- *    undefined               : is(undefined, x) -> true 
- *          (確実に判定する為にis.undefinedを使用してください)
- *    null                    : is(null     , x) -> true
- *    NaN                     : is(NaN      , x) -> true
- *    Infinity                : is(Infinity , x) -> true
- *    Number.POSITIVE_INFINITY: is(Infinity , x) -> true
- *    Number.NEGATIVE_INFINITY: is(-Infinity, x) -> true
- *    new Data('abcdefg')     : is(NaN      , x) -> true
+ *    undefined               : cis(undefined, x) -> true 
+ *          (確実に判定する為にcis.undefinedを使用してください)
+ *    null                    : cis(null     , x) -> true
+ *    NaN                     : cis(NaN      , x) -> true
+ *    Infinity                : cis(Infinity , x) -> true
+ *    Number.POSITIVE_INFINITY: cis(Infinity , x) -> true
+ *    Number.NEGATIVE_INFINITY: cis(-Infinity, x) -> true
+ *    new Data('abcdefg')     : cis(NaN      , x) -> true
  *
  * それぞれ、Number/Dateと型判定時にfalseになります
  * 
- * @for is
- * @method  is
+ * @for cis
+ * @method cis
  * @static
  * @param  {Mixed}   type
  * @param  {Mixed}   target
  * @return {Boolean} isType
  */
-var is = function is (type, target) {
+var cis = function cis(type, target) {
   // undefined, null
   if(target === void 0 || target === null) {
     return type === target;
@@ -73,7 +73,7 @@ var is = function is (type, target) {
   }
 
   // その他
-  var ctor = target.constructor;
+  var ctor = Object.getPrototypeOf(target).constructor;
 
   // 不正な日付
   if (ctor === Date && isNaN(target.getTime())) {
@@ -82,6 +82,71 @@ var is = function is (type, target) {
 
   // コンストラクタとの一致
   return type === ctor;
+};
+
+/**
+ * valueの型がtypeと一致する場合はvalueを返し
+ * しない場合はalternativeを返す
+ * @method alt
+ * @param  {Function} type
+ * @param  {Mixed} target
+ * @param  {Mixed} alternative
+ * @return {Mixed}
+ */
+cis.alt = function alt (type, target, alternative) {
+
+  if (arguments.length < 3) {
+    alternative = null;
+  }
+
+  // undefined/null
+  if (target === void 0 || target === null) {
+    return alternative;
+  }
+
+  // 文字列
+  if (type === String) {
+    if (typeof target === 'string') {
+      return target;
+    }
+    if (target instanceof String) {
+      return target.valueOf();
+    }
+    return alternative;
+  }
+
+  // 数字
+  if (type === Number) {
+    if (typeof target === 'number') {
+      return isFinite(target) ? target : alternative;
+    }
+    if (target instanceof Number) {
+      return target.valueOf();
+    }
+    return alternative;
+  }
+
+  // 真偽値
+  if (type === Boolean) {
+    if (typeof target === 'boolean') {
+      return target;
+    }
+    if (target instanceof Boolean) {
+      return target.valueOf();
+    }
+    return alternative;
+  }
+
+  // 日付
+  if (type === Date) {
+    if (target instanceof Date && !isNaN(target.getTime())) {
+      return target;
+    }
+    return alternative;
+  }
+
+  // その他
+  return target instanceof type ? target : alternative;
 };
 
 /**
@@ -95,7 +160,7 @@ var is = function is (type, target) {
  * @param  {Mixed}  target
  * @return {Object} type
  */
-is.getType = function getType (target) {
+cis.getType = function getType (target) {
 
   // undefined, null
   if(target === void 0 || target === null) {
@@ -127,7 +192,7 @@ is.getType = function getType (target) {
   }
 
   // その他
-  var ctor = target.constructor;
+  var ctor = Object.getPrototypeOf(target).constructor;
 
   // 日付
   if (ctor === Date) {
@@ -142,17 +207,6 @@ is.getType = function getType (target) {
  * @property {Array} ngWords
  */
 var ngWords = [
-  // グローバルオブジェクト
-  'Array', 'ArrayBuffer', 'Boolean', 'Collator', 'DataView',
-  'Date', 'DateTimeFormat', 'decodeURI', 'decodeURIComponent', 'encodeURI',
-  'encodeURIComponent', 'Error', 'eval', 'EvalError', 'Float32Array',
-  'Float64Array', 'Function', 'Infinity', 'Intl', 'Int16Array',
-  'Int32Array', 'Int8Array', 'isFinite', 'isNaN', 'Iterator',
-  'JSON', 'Math', 'NaN', 'Number', 'NumberFormat',
-  'Object', 'parseFloat', 'parseInt', 'RangeError', 'ReferenceError',
-  'RegExp', 'StopIteration', 'String', 'SyntaxError', 'TypeError',
-  'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray', 'undefined',
-  'uneval', 'URIError',
   // 構文予約語,
   'break', 'delete', 'if', 'this', 'while',
   'case', 'do', 'in', 'throw', 'with',
@@ -161,12 +215,26 @@ var ngWords = [
   'return', 'var', 'default', 'function', 'switch',
   'void', 'class', 'const', 'enum', 'export',
   'extends', 'import', 'super', 'implements', 'interface',
-  'let', 'package', 'private', 'protected', 'public',
-  'static', 'yield',
+  'let', 'package', 'yield',
   // ECMAScript,
-  'null', 'true', 'false',
-  // addtional,
-  'get', 'set', 'arguments',
+  'null', 'true', 'false', 'get', 'set', 'arguments',
+  // グローバルオブジェクト
+  'Array', 'ArrayBuffer', 'Boolean', 'Collator', 'DataView',
+  'Date', 'DateTimeFormat', 'decodeURI', 'decodeURIComponent', 'encodeURI',
+  'encodeURIComponent', 'Error', 'escape', 'eval', 'EvalError', 'Float32Array',
+  'Float64Array', 'Function', 'Infinity', 'Intl', 'Int16Array',
+  'Int32Array', 'Int8Array', 'isFinite', 'isNaN', 'Iterator',
+  'JSON', 'Math', 'NaN', 'Number', 'NumberFormat',
+  'Object', 'parseFloat', 'parseInt', 'RangeError', 'ReferenceError',
+  'RegExp','RegExpURIError',  'StopIteration', 'String', 'SyntaxError', 'TypeError',
+  'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray', 'undefined',
+  'unescape', 'uneval', 'URIError',
+  // safety
+  'private', 'protected', 'public', 'static',
+  'abstract', 'as', 'boolean', 'byte', 'char', 'double', 'final',
+  'float', 'goto', 'int', 'is', 'long', 'namespace', 'native',
+  'short', 'synchronized', 'throws', 'transient', 'use', 'volatile',
+  '',
   // node.js,
   'exports', 'require', 'module', '__filename', '__dirname',
   'DTRACE_NET_SERVER_CONNECTION', 'DTRACE_NET_STREAM_END',
@@ -176,6 +244,7 @@ var ngWords = [
   'global', 'process', 'GLOBAL', 'root', 'Buffer',
   'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'setImmediate',
   'clearImmediate', 'console'
+  // user-agent // TODO
 ].sort();
 
 /**
@@ -185,9 +254,9 @@ var ngWords = [
  * @param  {Array}    optional (省略可能)
  * @return {Boolean}  success
  */
-is.enableId = function enableId (target, optional) {
+cis.enableId = function enableId (target, optional) {
 
-  if (!is(String, target)) {
+  if (!cis(String, target)) {
     // 文字列ではない
     return false;
 
@@ -195,7 +264,7 @@ is.enableId = function enableId (target, optional) {
     // システム予約語
     return false;
 
-  } else if (is.allString(optional) && ~optional.indexOf(target)) {
+  } else if (cis.allString(optional) && ~optional.indexOf(target)) {
     // オプションの予約語
     return false;
 
@@ -215,8 +284,8 @@ is.enableId = function enableId (target, optional) {
  * @param  {Array} optional (省略可能)
  * @return {Array}
  */
-is.reservedWords = function reservedWords (optional) {
-  if (is.allString(optional)) {
+cis.reservedWords = function reservedWords (optional) {
+  if (cis.allString(optional)) {
     var rtn = [];
     rtn = rtn.concat(ngWords);
     rtn = rtn.concat(optional);
@@ -233,7 +302,7 @@ is.reservedWords = function reservedWords (optional) {
  * @param  {Mixed}  target
  * @return {Boolean}
  */
-is.undefined = function isUndefined (target) {
+cis.undefined = function isUndefined (target) {
   return target === void 0;
 };
 
@@ -244,20 +313,20 @@ is.undefined = function isUndefined (target) {
  * @param  {Mixed}   target
  * @return {Boolean}
  */
-is.unset = function isUnset (target) {
+cis.unset = function isUnset (target) {
   return target === null || target === void 0 || target === '';
 };
 
 /** 
  * 対象がArgumentsオブジェクトの場合はtrueを返します
- * 実際にはArgumentsは定義がないですが、is(Arguments, x)のように動作します。
+ * 実際にはArgumentsは定義がないですが、cis(Arguments, x)のように動作します。
  * _.isArgumentsと同じ処理です
  * @method arg
  * @param  {Mixed}   target
  * @return {Boolean} isArgumentsObject
  */
-is.arg = function isArg (target) {
-  return is(Object, target) && target.hasOwnProperty('callee');
+cis.arg = function isArg (target) {
+  return cis(Object, target) && target.hasOwnProperty('callee');
 };
 
 /**
@@ -267,7 +336,7 @@ is.arg = function isArg (target) {
  * @param  {target} target
  * @return {Boolaen}
  */
-is.error = function isError (target) {
+cis.error = function isError (target) {
   return target instanceof Error;
 };
 
@@ -279,7 +348,7 @@ is.error = function isError (target) {
  * @param  {Number} max    nullで判定をパス
  * @return {Boolean}
  */
-is.between = function isBetween (min, target, max) {
+cis.between = function isBetween (min, target, max) {
 
   min = min === null ? -Infinity : min;
   max = max === null ? Infinity : max;
@@ -296,9 +365,9 @@ is.between = function isBetween (min, target, max) {
  * @param  {Array}  arr
  * @return {Boolean}
  */
-is.allString = function isAllString (target) {
+cis.allString = function isAllString (target) {
 
-  if (is.arg(target)) {
+  if (cis.arg(target)) {
     target = Array.prototype.slice.call(target);
 
   } else if (!Array.isArray(target)) {
@@ -307,7 +376,7 @@ is.allString = function isAllString (target) {
   }
 
   return target.every(function (v) {
-    return is(String, v);
+    return cis(String, v);
   });
 };
 
@@ -317,9 +386,9 @@ is.allString = function isAllString (target) {
  * @param  {Array}  target
  * @return {Boolean}
  */
-is.allNumber = function isAllNumber (target) {
+cis.allNumber = function isAllNumber (target) {
 
-  if (is.arg(target)) {
+  if (cis.arg(target)) {
     target = Array.prototype.slice.call(target);
 
   } else if (!Array.isArray(target)) {
@@ -328,7 +397,7 @@ is.allNumber = function isAllNumber (target) {
   }
 
   return target.every(function (v) {
-    return is(Number, v);
+    return cis(Number, v);
   });
 };
 
@@ -339,9 +408,9 @@ is.allNumber = function isAllNumber (target) {
  * @param  {Array} target
  * @return {Boolean}
  */
-is.all = function isAll (type, target) {
+cis.all = function isAll (type, target) {
 
-  if (is.arg(target)) {
+  if (cis.arg(target)) {
     target = Array.prototype.slice.call(target);
 
   } else if (!Array.isArray(target)) {
@@ -350,7 +419,7 @@ is.all = function isAll (type, target) {
   }
 
   return target.every(function (v) {
-    return is(type, v);
+    return cis(type, v);
   });
 };
 
@@ -360,9 +429,9 @@ is.all = function isAll (type, target) {
  * @param  {Array} target
  * @return {Boolean}
  */
-is.unique = function isUnique (target) {
+cis.unique = function isUnique (target) {
 
-  if (is.arg(target)) {
+  if (cis.arg(target)) {
     target = Array.prototype.slice.call(target);
 
   } else if (!Array.isArray(target)) {
@@ -391,13 +460,13 @@ is.unique = function isUnique (target) {
  * @param  {Array|Arguments} target
  * @param  {Array}           must
  *           省略出来ないインデックス。設定していない場合はすべて省略不可とします
- *           省略可の値はis.unsetがtrueでも判定をパスします
+ *           省略可の値はcis.unsetがtrueでも判定をパスします
  * @return {Boolean} match
  */
-is.matches = function isMatches (types, target, must) {
+cis.matches = function isMatches (types, target, must) {
 
   // 対象が配列もしくはArgumentsではない場合はfalseを返す
-  if (!Array.isArray(types) && !is.arg(target)) {
+  if (!Array.isArray(types) && !cis.arg(target)) {
     return false;
   }
 
@@ -405,12 +474,12 @@ is.matches = function isMatches (types, target, must) {
   if(Array.isArray(must)) {
     // 省略可能な引数が存在する場合
     return types.every(function (tp, i) {
-      return (!~must.indexOf(i) && is.unset(target[i])) || is(tp, target[i]);
+      return (!~must.indexOf(i) && cis.unset(target[i])) || cis(tp, target[i]);
     });
 
   } else {
     // すべての引数が必須
-    return types.every(function (tp, i) { return is(tp, target[i]); });
+    return types.every(function (tp, i) { return cis(tp, target[i]); });
 
   }
 };
@@ -426,7 +495,7 @@ is.matches = function isMatches (types, target, must) {
  * @param  {Function} callback ({Error} err)
  * @return {Boolean} result
  */
-is.interfaceCheck = function interfaceCheck (target, properties, methods, callback) {
+cis.interfaceCheck = function interfaceCheck (target, properties, methods, callback) {
   
   var errorProperties = [];
   var errorMethods = [];
@@ -436,7 +505,7 @@ is.interfaceCheck = function interfaceCheck (target, properties, methods, callba
       var name = p[0];
       var val  = target[name];
       for(var i = 1, len = p.length; i < len; i++) {
-        if (is(p[i], val)) {
+        if (cis(p[i], val)) {
           return err;
         }
       }
@@ -447,7 +516,7 @@ is.interfaceCheck = function interfaceCheck (target, properties, methods, callba
 
   if (methods) {
     methods.reduce(function (err, m) {
-      if (!is(Function, target[m])) {
+      if (!cis(Function, target[m])) {
         err.push(m);
       }
       return err;
@@ -467,4 +536,4 @@ is.interfaceCheck = function interfaceCheck (target, properties, methods, callba
   return !err;
 };
 
-module.exports = exports = is;
+module.exports = exports = cis;

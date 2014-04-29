@@ -13,115 +13,126 @@ underscoreに同等の機能が存在する場合はそちらを優先して使�
 
 #使用方法
 
-```javascirpt:example.js
-
-var is = require('cocotte-is);
+```javascript
+var cis = require('cocotte-is');
 
 var fn = function (p1) {
-    if ( ! is(String, p1)) {
+    if (!cis(String, p1)) {
         throw new TypeError('引数1が文字列ではありません');
     }
 };
-
 ```
 
 #関数
 
-##is
+##cis
 
 型判定を行います  
 
-`is(型, 値)`と使用し、真偽値を返します。  
+`cis(型, 値)`と使用し、真偽値を返します。  
 型は基本的に値のconstructorと一致した時にtrueです。
 
 ただし、いくつかの値に関しては型はconstructor以外になります
 
 ```javascript
-var x = is(String, 'abc');
-var y = is(Infinity, 1/0);
+var x = cis(String, 'abc');
+var y = cis(Infinity, 1/0);
 ```
 
 instanceofに似ていますが、プロトタイプチェーンをたどりません  
 例えばnew String('abc')をStringであるかつObjectではないと判別するには  
-instanceofの代わりにisを使用する必要があります  
+instanceofの代わりにcisを使用する必要があります  
 またnull, NaNなどを判別する場合も使用できます  
 
 値のconstructorではないものは以下の通りです。
 
- + undefined               : is(undefined, x) -> true ※注意
- + null                    : is(null     , x) -> true
- + NaN                     : is(NaN      , x) -> true
- + Infinity                : is(Infinity , x) -> true
- + Number.POSITIVE_INFINITY: is(Infinity , x) -> true
- + Number.NEGATIVE_INFINITY: is(-Infinity, x) -> true
- + new Data('abcdefg')     : is(NaN      , x) -> true
+| 値                      | true              | false          |
+| ----------------------- | ------------------| -------------- |
+| undefined               | cis(undefined, x) | cis(null  , x) |
+| null                    | cis(null     , x) | cis(Object, x) |
+| NaN                     | cis(NaN      , x) | cis(Number, x) |
+| Infinity                | cis(Infinity , x) | cis(Number, x) |
+| Number.POSITIVE_INFINITY| cis(Infinity , x) | cis(Number, x) |
+| Number.NEGATIVE_INFINITY| cis(-Infinity, x) | cis(Number, x) |
+| new Data('abcdefg')     | cis(NaN      , x) | cis(Date  , x) |
 
-（注意）`undefined`は安全に検証する為のis.undefined(x)を使用してください
+（注意）`undefined`は安全に検証する為のcis.undefined(x)を使用してください
 
-##is.getType
-型を返します
+##cis.alt
 
-```javascirpt
-var tp = is.getType('abc');
+型判定を行い、一致した場合は値をそのまま返し、不一致の場合は代替の値を返します  
+第三引数を省略した場合は、代替の値は`null`です
+
+```javascript
+var x = cis.alt(String, 'abc', 'def'); // x -> 'abc'
+var y = cis.alt(Number, '123', 456);   // y -> 456
+var z = cis.alt(Boolean, 't');         // z -> null
 ```
 
-is関数と似ていますが、一致を判定するのはなく型をそのまま返します
+##cis.getType
+型を返します
+
+```javascript
+var type = cis.getType('abc');
+```
+
+cis関数と似ていますが、一致を判定するのはなく型をそのまま返します
 
 
-##is.enableId 
+##cis.enableId 
 識別子として利用可能かどうかを確認します
 
-```javascirpt
-var x = is.enableId('xyz');
-var y = is.enableId('xyz', ['abc', 'xyz']);
+```javascript
+var x = cis.enableId('xyz');
+var y = cis.enableId('xyz', ['abc', 'xyz']);
 ```
 
 識別子は予約語ではなく、20文字以内の英数字である必要があります。  
 また、第2引数に追加の予約語を設定する事が出来ます。
 
-#is.reservedWords
+##cis.reservedWords
 予約語一覧を取得する
 
-```javascirpt
-var ls = is.reservedWords();
+```javascript
+var ls = cis.reservedWords();
 ```
 
-##is.undefined
+##cis.undefined
 対象が未設定の値(undefined)の場合にtrueを返します。  
 undefinedを安全に検証する事ができます
 
-```javascirpt
-var x = is.undefined(123456);
+```javascript
+var x = cis.undefined(123456);
 ```
 
-##is.unset
+##cis.unset
 対象がnull、undefinedの場合にtrueを返します  
 空文字や数値の0と厳密に区別を行いたい場合に使用してください  
 
-```javascirpt
-var x = is.unset(0);
+```javascript
+var x = cis.unset(0);
 ```
 
-##is.arg
+##cis.arg
 対象がArgumentsオブジェクトの場合はtrueを返します  
-実際にはArgumentsは定義がないですが、is(Arguments, x)のように動作します。  
-_.isArgumentsと同じです  
+実際にはArgumentsは定義がないですが、cis(Arguments, x)のように動作します。  
+_.cisArgumentsと同じです  
 
-```javascirpt
-var x = is.arg(arguments);
+```javascript
+var x = cis.arg(arguments);
 ```
 
-##is.error
+##cis.error
 エラーオブジェクトかどうかを確認します  
 この関数はプロトタイプチェーンをさかのぼります  
-isとの違いは`is(Error, new TypeError('x'))`はfalseになる事に対し
+cisとの違いは`cis(Error, new TypeError('x'))`はfalseになる事に対し
 下記は`true`になります
 
-```javascirpt
-var x = is.error(new TypeError('文字列ではありません'));
+```javascript
+var x = cis.error(new TypeError('文字列ではありません'));
 ```
 
-##is.between
+##cis.between
 値が範囲内かどうかを確認します  
 引数はすべて数字もしくはnullである必要があります
 
@@ -130,40 +141,40 @@ var x = is.error(new TypeError('文字列ではありません'));
 
 ```javascript
 var x = 5;
-var y = is.between(1, x, 10);
+var y = cis.between(1, x, 10);
 ```
 
-##is.allString
-すべての値が空文字ではない文字列であるか判別します
+##cis.allString
+すべての値が文字列であるか判別します
 
 ```javascript
-var x = is.allString(['a', 'b', 'c']);
+var x = cis.allString(['a', 'b', 'c']);
 ```
 
-##is.allNumber
+##cis.allNumber
 すべての値が有効な数字であるか判別します  
 `NaN`,`Infinity`, `Number.NEGATIVE_INFINITY`は無効な数字と見なします
 
 ```javascript
-var x = is.allString([1, 2, 3]);
+var x = cis.allString([1, 2, 3]);
 ```
 
-##is.all
+##cis.all
 すべての値が指定した型の要素の配列かどうかを判別します  
 
 ```javascript
-var x = is.all(Date, [new Date(), new Date(), '2014-01-12']);
+var x = cis.all(Date, [new Date(), new Date(), '2014-01-12']);
 ```
 
-##is.unique
+##cis.unique
 すべての値が一意であるか判別します。  
 各要素の判定は`===`で行われます。
 
 ```javascript
-var x = is.unique([1, 2, 3]);
+var x = cis.unique([1, 2, 3]);
 ```
 
-##is.matches
+##cis.matches
 すべての型が一致するかの判定を行います  
   @method matches  
   @static  
@@ -171,18 +182,18 @@ var x = is.unique([1, 2, 3]);
   @param  {Array|Arguments}   target  
   @param  {Object}  must  省略可能  
     省略出来ない値のインデックス。設定していない場合はすべて省略不可とします  
-    省略可の値はis.unsetがtrueでも判定をパスします  
+    省略可の値はcis.unsetがtrueでも判定をパスします  
   @return {Boolean} match  
 
 ```javascript
 var fn = function (p1, p2, p3) {
-    if( ! is.matches([String, Number, Array], arguments) {
+    if( ! cis.matches([String, Number, Array], arguments) {
          throw new TypeError('引数の型が一致しません');
     }
 };
 ```
 
-##is.interfaceCheck
+##cis.interfaceCheck
 
 対象のオブジェクトがプロパティとメソッドを保持しているかを確認します。  
   @method interfaceCheck  
@@ -196,14 +207,14 @@ var target = {
   prop1: 'foo',
   prop2: 23,
   prop3: null,
-  meth1: function (val) {this.prop1 = val;}
+  meth1: function (val) {thcis.prop1 = val;}
 };
 
 var properties = [['prop1', String], ['prop2', Number], ['prop3', String, null]];
 
 var methods = ['meth1'];
 
-var x = is.interfaceCheck(target, properties, methods, function(err) {
+var x = cis.interfaceCheck(target, properties, methods, function(err) {
   if (err) console.error(err);
 });
 ```
