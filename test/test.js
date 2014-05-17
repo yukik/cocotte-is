@@ -1,5 +1,6 @@
 
 require('./is');
+require('./be');
 require('./alt');
 require('./get-type');
 require('./enable-id');
