@@ -58,6 +58,18 @@ instanceofの代わりにcisを使用する必要があります
 
 （注意）`undefined`は安全に検証する為のcis.undefined(x)を使用してください
 
+##cis.be
+
+型判定を行います。  
+`cis`と似ていますが、入力値が`null`または`undefined`の場合は`true`を返します。
+
+```javascript
+var x = cis.be(String, 'abc');
+var y = cis.be(String, null);
+```
+
+どちらも`true`を返します
+
 ##cis.alt
 
 型判定を行い、一致した場合は値をそのまま返し、不一致の場合は代替の値を返します  
@@ -75,9 +87,6 @@ var z = cis.alt(Boolean, 't');         // z -> null
 ```javascript
 var type = cis.getType('abc');
 ```
-
-cis関数と似ていますが、一致を判定するのはなく型をそのまま返します
-
 
 ##cis.enableId 
 識別子として利用可能かどうかを確認します

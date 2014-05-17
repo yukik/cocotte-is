@@ -85,6 +85,21 @@ var cis = function cis(type, target) {
 };
 
 /**
+ * 型判定を行う
+ * cisと似ていますが、値がnullまたはundefinedの場合もtrueになります
+ * @method be
+ * @param  {Mixed} type
+ * @param  {Mixed} target
+ * @return {Boolean} isType
+ */
+cis.be = function be (type, target) {
+  if (target === void 0 || target === null) {
+    return true;
+  }
+  return cis(type, target);
+};
+
+/**
  * valueの型がtypeと一致する場合はvalueを返し
  * しない場合はalternativeを返す
  * @method alt
