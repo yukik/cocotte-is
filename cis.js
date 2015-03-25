@@ -13,6 +13,12 @@
  * 単体で動作します
  */
 
+/*
+ * alias
+ */
+// 識別に使用するID
+var regId = /^[a-z]([_0-9a-z]{0,30}[0-9a-z])?$/i;
+
 /**
  * 型判定を行う
  * instanceofに似ていますが、プロトタイプチェーンをたどりません
@@ -283,8 +289,8 @@ cis.enableId = function enableId (target, optional) {
     // オプションの予約語
     return false;
 
-  } else if (!/^[a-z]([_0-9a-z]{0,18}[0-9a-z])?$/i.test(target)) {
-    // 20文字以内の英数字ではない
+  } else if (!regId.test(target)) {
+    // 32文字以内の英数字ではない
     return false;
 
   } else {
@@ -320,6 +326,25 @@ cis.reservedWords = function reservedWords (optional) {
 cis.undefined = function isUndefined (target) {
   return target === void 0;
 };
+
+/** 
+ * 整数かどうかを確認する
+ * @method integer
+ * @param  {Mixed}  target
+ * @return {Boolean}
+ */
+if (~~-2147483649 === -2147483649) {
+  // 64bit〜
+  cis.integer = function integer (target) {
+    return typeof target === 'number' && isFinite(target) && target === ~~target &&
+      -2147483648 <= target && target <= 2147483647;
+  };
+} else {
+  // 32bit
+  cis.integer = function integer (target) {
+    return typeof target === 'number' && isFinite(target) && target === ~~target;
+  };
+}
 
 /**
  * 対象が空文字、null、undefinedの場合にtrueを返します
@@ -497,58 +522,6 @@ cis.matches = function isMatches (types, target, must) {
     return types.every(function (tp, i) { return cis(tp, target[i]); });
 
   }
-};
-
-/**
- * 対象のオブジェクトがプロパティとメソッドを保持しているかを確認します。
- * @method interfaceCheck
- * @param  {Object}  target
- * @param  {Array}   properties
- *                      [[プロパティ名, 許容型1, 許容型2,.. ], ...]
- * @param  {Array}   methods
- *                      [メソッド名1, メソッド名2, ...]
- * @param  {Function} callback ({Error} err)
- * @return {Boolean} result
- */
-cis.interfaceCheck = function interfaceCheck (target, properties, methods, callback) {
-  
-  var errorProperties = [];
-  var errorMethods = [];
-
-  if (properties) {
-    properties.reduce(function (err, p) {
-      var name = p[0];
-      var val  = target[name];
-      for(var i = 1, len = p.length; i < len; i++) {
-        if (cis(p[i], val)) {
-          return err;
-        }
-      }
-      err.push(name);
-      return err;
-    }, errorProperties);
-  }
-
-  if (methods) {
-    methods.reduce(function (err, m) {
-      if (!cis(Function, target[m])) {
-        err.push(m);
-      }
-      return err;
-    }, errorMethods);
-  }
-
-  var err = null;
-
-  if (errorProperties.length + errorMethods.length) {
-    err = new Error(
-      (errorProperties.length > 0 ? 'プロパティ:' + errorProperties.join() + '  ': '') +
-      (errorMethods.length > 0 ? 'メソッド:' + errorMethods.join() : ''));
-  }
-  if (callback) {
-    callback(err);
-  }
-  return !err;
 };
 
 module.exports = exports = cis;

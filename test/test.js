@@ -15,6 +15,5 @@ require('./all-number');
 require('./all');
 require('./unique');
 require('./matches');
-require('./interface-check');
 
 console.log('test ok');

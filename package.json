@@ -12,7 +12,7 @@
     "url": "git://github.com/yukik/cocotte-is.git"
   },
   "main": "cis.js",
-  "version": "0.2.10",
+  "version": "0.2.12",
   "scripts": {
     "test": "node ./test/test.js"
   },
